@@ -89,9 +89,10 @@ export default class ButtonGroupControl extends React.Component<
       block,
       vertical,
       tiled,
+      badge,
       translate: __
     } = props;
-
+    console.log('props-', props);
     let body: Array<React.ReactNode> = [];
     let btnLevel = props.btnLevel;
     let btnActiveLevel = props.btnActiveLevel;
@@ -103,13 +104,20 @@ export default class ButtonGroupControl extends React.Component<
     if (options && options.length) {
       body = options.map((option, key) => {
         const active = !!~selectedOptions.indexOf(option);
+
+        const optionBadge = badge
+          ? option?.badge && typeof option?.badge === 'string'
+            ? {...badge, text: option.badge}
+            : {...badge, ...option.badge}
+          : option.badge;
+
         return render(
           `option/${key}`,
           {
             label: option[labelField || 'label'],
             icon: option.icon,
             size: option.size || size,
-            badge: option.badge,
+            badge: optionBadge,
             type: 'button',
             block: block
           },
@@ -130,8 +138,16 @@ export default class ButtonGroupControl extends React.Component<
         );
       });
     } else if (Array.isArray(buttons)) {
-      body = buttons.map((button, key) =>
-        render(
+      body = buttons.map((button, key) => {
+        const buttonBadge = badge
+          ? button?.badge && typeof button?.badge === 'string'
+            ? {...badge, text: button.badge}
+            : {...badge, ...button.badge}
+          : button.badge;
+
+        console.log('button-', button);
+
+        return render(
           `button/${key}`,
           {
             size: size,
@@ -139,14 +155,15 @@ export default class ButtonGroupControl extends React.Component<
             activeLevel: btnActiveLevel,
             level: btnLevel,
             disabled,
-            ...button
+            ...button,
+            badge: buttonBadge
           },
           {
             key,
             className: cx(button.className, btnClassName)
           }
-        )
-      );
+        );
+      });
     }
 
     return (
